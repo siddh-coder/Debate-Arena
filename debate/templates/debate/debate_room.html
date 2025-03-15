@@ -1,0 +1,109 @@
+{% extends 'debate/base.html' %}
+{% block content %}
+    <h1 class="text-4xl font-extrabold mb-6 text-indigo-700">{{ debate.topic }}</h1>
+    <div class="flex justify-between items-center mb-6">
+        <p class="text-lg">Type: <span class="font-semibold">{{ debate.debate_type }}</span> | Time Limit: <span class="font-semibold">{{ debate.time_limit }}s</span></p>
+        {% if debate.host == user %}
+            <form method="post" action="{% url 'close_debate' debate.id %}" class="inline">
+                {% csrf_token %}
+                <button type="submit" class="bg-red-500 text-white p-2 rounded-full hover:bg-red-600 transition">Close Debate</button>
+            </form>
+        {% endif %}
+    </div>
+
+    <div id="timer" class="text-2xl font-bold text-red-600 bg-white p-4 rounded-lg shadow mb-6">Time Left: {{ debate.time_limit }}s</div>
+    <form id="argument-form" class="mb-8 bg-white p-6 rounded-xl shadow-lg">
+        <textarea id="argument-content" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-indigo-500" rows="4" placeholder="Drop your argument here..."></textarea>
+        <button type="submit" class="mt-4 bg-indigo-500 text-white p-3 rounded-full hover:bg-indigo-600 transition w-full">Submit Argument</button>
+    </form>
+
+    <div id="post-time-options" class="hidden mt-6 space-y-4">
+        <button id="more-argument-btn" class="w-full bg-green-500 text-white p-3 rounded-full hover:bg-green-600 transition font-semibold">Add Another Argument</button>
+        <a href="{% url 'home' %}" class="w-full bg-red-500 text-white p-3 rounded-full hover:bg-red-600 transition font-semibold text-center block">Exit Debate</a>
+    </div>
+
+    <h2 class="text-2xl font-semibold text-indigo-600 mb-4">Arguments</h2>
+    <div id="arguments" class="space-y-6">
+        {% for argument in arguments %}
+            <div class="bg-white p-6 rounded-xl shadow hover:shadow-md transition">
+                <p class="font-bold text-lg">{{ argument.participant }} <span class="text-green-500">(Score: {% if argument.score is not None %}{{ argument.score|floatformat:1 }}{% else %}Pending{% endif %})</span></p>
+                <p class="mt-2">{{ argument.content }}</p>
+                <p class="text-gray-500 text-sm mt-1">{{ argument.submitted_at }}</p>
+            </div>
+        {% endfor %}
+    </div>
+
+    {% if debate.host == user %}
+        <div class="mt-8 bg-white p-6 rounded-2xl shadow-xl">
+            <h2 class="text-2xl font-semibold text-indigo-600 mb-4">Live Leaderboard</h2>
+            <div class="grid grid-cols-2 gap-6">
+                <div>
+                    <h3 class="text-lg font-bold text-green-600">For</h3>
+                    {% for p in for_participants %}
+                        <p>{{ p }}: {{ p.total_score|floatformat:2 }}</p>
+                    {% endfor %}
+                    <p class="font-bold mt-2">Total: {{ for_total|floatformat:2 }}</p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold text-red-600">Against</h3>
+                    {% for p in against_participants %}
+                        <p>{{ p }}: {{ p.total_score|floatformat:2 }}</p>
+                    {% endfor %}
+                    <p class="font-bold mt-2">Total: {{ against_total|floatformat:2 }}</p>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    <script>
+        let timeLeft = {{ debate.time_limit }};
+        const timer = document.getElementById('timer');
+        const interval = setInterval(() => {
+            timeLeft--;
+            timer.textContent = `Time Left: ${timeLeft}s`;
+            if (timeLeft <= 0) {
+                clearInterval(interval);
+                timer.textContent = 'Time Over!';
+                document.getElementById('argument-form').classList.add('hidden');
+                document.getElementById('post-time-options').classList.remove('hidden');
+            }
+        }, 1000);
+
+        document.getElementById('argument-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const content = document.getElementById('argument-content').value;
+            const response = await fetch("{% url 'submit_argument' debate.id %}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': '{{ csrf_token }}',
+                },
+                body: `content=${encodeURIComponent(content)}`,
+            });
+            const data = await response.json();
+            if (data.success) {
+                document.getElementById('argument-content').value = '';
+                location.reload();
+            } else {
+                alert(data.error);
+            }
+        });
+
+        document.getElementById('more-argument-btn').addEventListener('click', () => {
+            timeLeft = {{ debate.time_limit }};
+            document.getElementById('post-time-options').classList.add('hidden');
+            document.getElementById('argument-form').classList.remove('hidden');
+            timer.textContent = `Time Left: ${timeLeft}s`;
+            interval = setInterval(() => {
+                timeLeft--;
+                timer.textContent = `Time Left: ${timeLeft}s`;
+                if (timeLeft <= 0) {
+                    clearInterval(interval);
+                    timer.textContent = 'Time Over!';
+                    document.getElementById('argument-form').classList.add('hidden');
+                    document.getElementById('post-time-options').classList.remove('hidden');
+                }
+            }, 1000);
+        });
+    </script>
+{% endblock %}

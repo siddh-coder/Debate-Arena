@@ -1,0 +1,43 @@
+{% extends 'debate/base.html' %}
+{% block content %}
+    <div class="max-w-md mx-auto mt-10 bg-white p-8 rounded-2xl shadow-xl transform hover:shadow-2xl transition">
+        <h1 class="text-3xl font-extrabold text-center mb-6 text-indigo-700">Create a New Debate</h1>
+        <form method="post" class="space-y-6">
+            {% csrf_token %}
+            {% if form.errors %}
+                <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-lg mb-4">
+                    <p class="font-semibold">Please fix the following errors:</p>
+                    <ul class="list-disc list-inside">
+                        {% for field in form %}
+                            {% for error in field.errors %}
+                                <li>{{ field.label }}: {{ error }}</li>
+                            {% endfor %}
+                        {% endfor %}
+                        {% for error in form.non_field_errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+            <div class="space-y-4">
+                <div>
+                    <label for="{{ form.topic.id_for_label }}" class="block text-sm font-medium text-gray-700">Debate Topic</label>
+                    <input type="text" name="{{ form.topic.name }}" id="{{ form.topic.id_for_label }}" value="{{ form.topic.value|default_if_none:'' }}" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition" placeholder="Enter the debate topic">
+                </div>
+                <div>
+                    <label for="{{ form.debate_type.id_for_label }}" class="block text-sm font-medium text-gray-700">Debate Type</label>
+                    <select name="{{ form.debate_type.name }}" id="{{ form.debate_type.id_for_label }}" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
+                        {% for value, label in form.debate_type.field.choices %}
+                            <option value="{{ value }}" {% if value == form.debate_type.value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label for="{{ form.time_limit.id_for_label }}" class="block text-sm font-medium text-gray-700">Time Limit (seconds)</label>
+                    <input type="number" name="{{ form.time_limit.name }}" id="{{ form.time_limit.id_for_label }}" value="{{ form.time_limit.value|default_if_none:'30' }}" min="30" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition" placeholder="Enter time limit (min 30s)">
+                </div>
+            </div>
+            <button type="submit" class="w-full bg-gradient-to-r from-green-400 to-teal-500 text-white p-3 rounded-full hover:from-green-500 hover:to-teal-600 transition font-semibold">Create Debate</button>
+        </form>
+    </div>
+{% endblock %}

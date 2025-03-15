@@ -1,0 +1,30 @@
+{% extends 'debate/base.html' %}
+{% block content %}
+    <div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100">
+        <div class="max-w-lg mx-auto bg-white p-8 rounded-2xl shadow-xl transform hover:shadow-2xl transition text-center">
+            <h1 class="text-4xl font-extrabold mb-4 text-indigo-700">🎉 Debate Closed: {{ debate.topic }} 🎉</h1>
+            <p class="text-xl font-semibold text-gray-700 mb-2">Winner: <span class="text-green-600">{{ winner }} (Score: {{ winner.total_score|floatformat:1 }})</span></p>
+            <div class="mt-6">
+                <h2 class="text-2xl font-semibold text-indigo-600 mb-2">Final Scores</h2>
+                <p class="text-lg">For Team: <span class="font-bold text-green-600">{{ debate.difference_table.for_total|floatformat:1 }}</span></p>
+                <p class="text-lg">Against Team: <span class="font-bold text-red-600">{{ debate.difference_table.against_total|floatformat:1 }}</span></p>
+                <p class="text-lg mt-2">Difference: <span class="font-bold {% if debate.difference_table.difference > 0 %}text-green-600{% else %}text-red-600{% endif %}">{{ debate.difference_table.difference|floatformat:1 }}</span></p>
+            </div>
+            <a href="{% url 'home' %}" class="mt-6 inline-block bg-gradient-to-r from-indigo-500 to-purple-600 text-white p-3 rounded-full hover:from-indigo-600 hover:to-purple-700 transition font-semibold">Back to Home</a>
+        </div>
+    </div>
+
+    <!-- Include confetti library -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <script>
+        // Trigger confetti on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            confetti({
+                particleCount: 150,
+                spread: 70,
+                origin: { y: 0.6 },
+                colors: ['#4F46E5', '#A855F7', '#EC4899']
+            });
+        });
+    </script>
+{% endblock %}

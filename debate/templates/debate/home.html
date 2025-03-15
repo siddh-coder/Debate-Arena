@@ -1,0 +1,54 @@
+{% extends 'debate/base.html' %}
+{% block content %}
+    <div class="min-h-screen flex flex-col items-center justify-center">
+        <h1 class="text-5xl font-extrabold text-indigo-700 mb-4">Welcome to Debate Arena</h1>
+        <p class="text-lg text-gray-700 mb-10 text-center max-w-2xl">
+            Step into the ultimate battleground of ideas! Debate Arena lets you create, join, and dominate debates on any topic. Argue your stance, earn points, and rise to the top in thrilling clashes of wit and logic.
+        </p>
+        <div class="flex space-x-8 mb-8">
+            <div class="bg-green-500 text-white p-6 rounded-xl shadow-lg hover:shadow-xl transition transform hover:scale-105">
+                <a href="{% url 'create_debate' %}" class="block">
+                    <h2 class="text-2xl font-semibold">Create a Debate</h2>
+                    <p class="mt-2">Start your own battle of wits!</p>
+                </a>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition transform hover:scale-105">
+                <h2 class="text-2xl font-semibold text-indigo-600">Active Debates</h2>
+                {% if debates %}
+                    <ul class="mt-2 space-y-2">
+                        {% for debate in debates %}
+                            <li>
+                                <a href="{% url 'join_debate' debate.id %}" class="text-indigo-500 hover:underline">{{ debate.topic }}</a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="mt-2 text-gray-600">No active debates. Start one!</p>
+                {% endif %}
+            </div>
+        </div>
+        <div>
+            <a href="{% url 'join_debate_code' %}" class="inline-block bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-6 py-3 rounded-full shadow-md hover:shadow-lg hover:from-indigo-600 hover:to-purple-700 transition-all duration-300 transform hover:scale-105">
+                Join by Code? Click Here
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // Check for login error on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.location.pathname === '/create/' && '{{ request.session.show_login_error }}' === 'True') {
+                alert('You must be logged in to create a debate. Please sign up or log in to continue.');
+                // Clear the session variable after showing the popup
+                fetch('/clear-session/', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}',
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ key: 'show_login_error' }),
+                });
+            }
+        });
+    </script>
+{% endblock %}

@@ -1,0 +1,8 @@
+{% extends 'debate/base.html' %}
+{% block content %}
+    <h1 class="text-4xl font-extrabold mb-6 text-indigo-700">Debate Created!</h1>
+    <p class="text-lg">Topic: <span class="font-semibold">{{ debate.topic }}</span></p>
+    <p>Share this code with guests: <strong class="text-2xl text-green-500">{{ debate.code }}</strong></p>
+    <p>Or use this link: <a href="{% url 'join_debate' debate.id %}" class="text-indigo-500 hover:underline">{{ request.scheme }}://{{ request.get_host }}{% url 'join_debate' debate.id %}</a></p>
+    <a href="{% url 'debate_room' debate.id %}" class="mt-6 inline-block bg-indigo-500 text-white p-3 rounded-full hover:bg-indigo-600 transition">Go to Debate Room</a>
+{% endblock %}

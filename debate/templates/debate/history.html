@@ -1,0 +1,23 @@
+{% extends 'debate/base.html' %}
+{% block content %}
+    <h1 class="text-4xl font-extrabold mb-8 text-indigo-700">Your Debate History</h1>
+    <div class="space-y-6">
+        {% for debate in debates %}
+    <div class="bg-white p-6 rounded-xl shadow hover:shadow-md transition">
+        <h2 class="text-xl font-bold">{{ debate.topic }}</h2>
+        <p class="text-gray-600">Type: {{ debate.debate_type }} | Time: {{ debate.time_limit }}s | Code: {{ debate.code }}</p>
+        <p class="text-gray-500">Created: {{ debate.created_at }}</p>
+        <p>Status: {% if debate.is_active %}Active{% else %}Closed{% endif %}</p>
+        {% if debate.difference_table %}
+            <div class="mt-4">
+                <h3 class="text-lg font-semibold text-indigo-600">Difference Table</h3>
+                <p>For Total: {{ debate.difference_table.for_total|floatformat:2 }}</p>
+                <p>Against Total: {{ debate.difference_table.against_total|floatformat:2 }}</p>
+                <p>Difference: {{ debate.difference_table.difference|floatformat:2 }}</p>
+            </div>
+        {% endif %}
+    </div>
+{% endfor %}
+    </div>
+    <a href="{% url 'home' %}" class="mt-6 inline-block bg-indigo-500 text-white p-3 rounded-full hover:bg-indigo-600 transition">Back to Home</a>
+{% endblock %}
