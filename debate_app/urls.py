@@ -4,7 +4,6 @@ from django.contrib.auth import views as auth_views
 from debate import views
 from django.conf import settings
 from django.conf.urls.static import static
-from django.views.generic import TemplateView
 from django.contrib.sitemaps.views import sitemap
 from debate.sitemaps import StaticViewSitemap, DebateSitemap
 
@@ -23,9 +22,14 @@ urlpatterns = [
     path('signup/', views.signup, name='signup'),
     # SEO URLs
     path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='django.contrib.sitemaps.views.sitemap'),
-    path('robots.txt', TemplateView.as_view(template_name='robots.txt', content_type='text/plain')),
 ]
 
-# Serve static files during development
+# Serve static files during development and production
 if settings.DEBUG:
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+else:
+    # Serve robots.txt statically in production
+    from django.views.static import serve
+    urlpatterns += [
+        path('robots.txt', serve, {'document_root': settings.BASE_DIR, 'path': 'robots.txt'}),
+    ]
