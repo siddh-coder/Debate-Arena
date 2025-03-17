@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://debate-arena.onrender.com/sitemap.xml
+
+# Disallow private or sensitive pages (if any)
+# Example: Disallow: /admin/
+# Uncomment and adjust as needed
